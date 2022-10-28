@@ -31,7 +31,7 @@ bool queue_isEmpty(int* pqueue)
 }
 
 
-int queue_take(int* pqueue)
+queue_item queue_take(int* pqueue)
 {
     if(queue_isEmpty(pqueue))
     {
@@ -50,12 +50,12 @@ int queue_take(int* pqueue)
         }
     }
 
-    int value_to_return = int();
+    queue_item value_to_return = queue_item();
     for(std::list<queue_item>::iterator it = queue->begin(); it!= queue->end(); it++)
     {
         if(it->priority == higest_priority){
-            value_to_return = it->value;
-            queue->erase(it);
+            value_to_return = *it;
+            queue->erase(it);            
             break;
         }
     }
@@ -70,7 +70,7 @@ std::mutex logger;
 
 void writer(int* pq, int number){
     
-    for(int i = 0; i < 10000; i++)
+    for(int i = 0; i < 10; i++)
     {
         writerMutex.lock();
         queue_push(pq, std::rand() % 1000, std::rand() % 1000);
@@ -84,11 +84,12 @@ void writer(int* pq, int number){
 }
 
 void reader(int* pq, int number){
-    int buffer;
-    for(int i = 0; i < 10000; i++)
+    queue_item buffer;
+    for(int i = 0; i < 10; i++)
     {  
         readerMutex.lock();
         buffer = queue_take(pq);
+        std::cout << "( " << buffer.value << " | " << buffer.priority << " ) " << "Thread " << number <<  std::endl;
         readerMutex.unlock();
     }
 
@@ -127,7 +128,7 @@ int main(){
         readers[i].join();
     }
 
-    std::cout << "10 thread over reading" << std::endl;
+    std::cout << "10 threads over reading" << std::endl;
 
 
     return 0;
