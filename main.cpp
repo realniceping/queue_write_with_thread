@@ -69,8 +69,11 @@ std::mutex readerMutex;
 std::mutex logger;
 
 void writer(int* pq, int number){
-    
-    for(int i = 0; i < 10; i++)
+    logger.lock();
+    std::cout << "Thread " << number << " start writing\n";
+    logger.unlock();
+
+    for(int i = 0; i < 1000; i++)
     {
         writerMutex.lock();
         queue_push(pq, std::rand() % 1000, std::rand() % 1000);
@@ -84,12 +87,15 @@ void writer(int* pq, int number){
 }
 
 void reader(int* pq, int number){
+    logger.lock();
+    std::cout << "Thread " << number << " start reading\n";
+    logger.unlock();
     queue_item buffer;
-    for(int i = 0; i < 10; i++)
+    for(int i = 0; i < 1000; i++)
     {  
         readerMutex.lock();
         buffer = queue_take(pq);
-        std::cout << "( " << buffer.value << " | " << buffer.priority << " ) " << "Thread " << number <<  std::endl;
+        //std::cout << "( " << buffer.value << " | " << buffer.priority << " ) " << "Thread " << number <<  std::endl;
         readerMutex.unlock();
     }
 
