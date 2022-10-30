@@ -3,6 +3,20 @@
 #include<mutex>
 #include<list>
 
+#define PR_DEBUG
+
+#ifdef PR_DEBUG 
+#define LOG(x) std::cout << x 
+#define NEWLINE std::cout << std::endl
+#define QUANTITY 10
+#else
+#define LOG(x) 
+#define NEWLINE
+#define QUANTITY 10000
+#endif
+
+
+
 struct queue_item 
 {
     int value;
@@ -13,6 +27,7 @@ int* queue_init()
 { 
     return (int*)(new std::list<queue_item>);  
 }
+
 
 void queue_push(int* pqueue, int v, int p)
 {
@@ -73,7 +88,7 @@ void writer(int* pq, int number){
     std::cout << "Thread " << number << " start writing\n";
     logger.unlock();
 
-    for(int i = 0; i < 1000; i++)
+    for(int i = 0; i < QUANTITY; i++)
     {
         writerMutex.lock();
         queue_push(pq, std::rand() % 1000, std::rand() % 1000);
@@ -91,11 +106,14 @@ void reader(int* pq, int number){
     std::cout << "Thread " << number << " start reading\n";
     logger.unlock();
     queue_item buffer;
-    for(int i = 0; i < 1000; i++)
+    for(int i = 0; i < QUANTITY; i++)
     {  
         readerMutex.lock();
         buffer = queue_take(pq);
-        //std::cout << "( " << buffer.value << " | " << buffer.priority << " ) " << "Thread " << number <<  std::endl;
+        LOG(buffer.value);
+        LOG(" | ");
+        LOG(buffer.priority);
+        NEWLINE;
         readerMutex.unlock();
     }
 
@@ -119,7 +137,7 @@ int main(){
     for(int i = 0; i < 10; i++){
         writers[i].join();
     }
-    std::cout << "10 threads over writing" << std::endl;
+    std::cout << "10 threads over writing." << std::endl;
 
     //create 10 reader thread 
     std::thread readers[10];
@@ -134,7 +152,7 @@ int main(){
         readers[i].join();
     }
 
-    std::cout << "10 threads over reading" << std::endl;
+    std::cout << "10 threads over reading." << std::endl;
 
 
     return 0;
