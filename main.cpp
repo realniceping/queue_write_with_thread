@@ -138,6 +138,8 @@ int main(){
         writers[i].join();
     }
     std::cout << "10 threads over writing." << std::endl;
+    std::cout << "Press any key to start reading";
+    std::cin.get();
 
     //create 10 reader thread 
     std::thread readers[10];
